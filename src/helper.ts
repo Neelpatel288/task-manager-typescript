@@ -7,6 +7,6 @@ export const validateoperation = (body: any, allowedUpdates: string[]) => {
 	return isValidOperation
 }
 
-export const checkValidIdLength = (id: string) => {
+export const checkValidIdLength = (id: string): boolean => {
 	return id.length === 24
 }

@@ -28,3 +28,8 @@ export const deleteTask = (_id: string, owner: string) => {
 	const task = Task.findOneAndDelete({ _id, owner })
 	return task
 }
+
+export const deleteManyTask = (owner: string) => {
+	const task = Task.deleteMany({ owner })
+	return task
+}

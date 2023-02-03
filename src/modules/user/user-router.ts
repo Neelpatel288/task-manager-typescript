@@ -1,8 +1,9 @@
 import express, { Request, Response } from 'express'
-import { postUser, patchUser, userLogin } from './user-service'
+import { postUser, patchUser, userLogin, deleteUser } from './user-service'
 import { validateoperation } from '../../helper'
 import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
+import { deleteManyTask } from '../task/task-service'
 // import { IGetUserAuthInfoRequest } from '../../models/user'
 
 export const userRouter: express.Router = express.Router()
@@ -20,7 +21,9 @@ userRouter.post('/', async (req: Request, res: Response) => {
 
 userRouter.post('/login', async (req: Request, res: Response) => {
 	try {
-		const user = await userLogin(req.body.email, req.body.password)
+		const { email, password } = req.body
+
+		const user = await userLogin(email, password)
 		const token = await user.generateAuthToken()
 		res.send({ data: { user, token } })
 	} catch (e) {
@@ -35,7 +38,7 @@ userRouter.post('/logout', auth, async (req: Request, res: Response) => {
 		user.tokens = user.tokens.filter((userToken: string) => {
 			return userToken != token
 		})
-		await req.body.user.save()
+		await user.save()
 		res.send()
 	} catch (e) {
 		console.log(e)
@@ -45,8 +48,9 @@ userRouter.post('/logout', auth, async (req: Request, res: Response) => {
 
 userRouter.post('/logoutAll', auth, async (req: Request, res: Response) => {
 	try {
-		req.body.user.tokens = []
-		await req.body.user.save()
+		const { user } = req.body
+		user.tokens = []
+		await user.save()
 		res.send()
 	} catch (e) {
 		console.log(e)
@@ -77,8 +81,11 @@ userRouter.patch('/me', auth, async (req: Request, res: Response) => {
 
 userRouter.delete('/me', auth, async (req: Request, res: Response) => {
 	try {
-		await req.body.user.remove()
-		res.send({ data: req.body.user })
+		const { user } = req.body
+		const userId = user._id
+		await deleteUser(userId)
+		await deleteManyTask(userId)
+		res.send({ data: user })
 	} catch (e) {
 		console.log(e)
 		res.status(500).send()

@@ -13,7 +13,6 @@ export interface UserInput {
 }
 
 export interface UserDocuments extends UserInput, mongoose.Document {
-	tasks: string
 	createdAt: Date
 	updatedAt: Date
 	generateAuthToken(): Promise<string>
@@ -127,10 +126,10 @@ userSchema.pre('save', async function (next) {
 })
 
 //Delete user task when user id Deleted
-userSchema.pre('remove', async function (next) {
-	const user = this
-	await Task.deleteMany({ owner: user._id })
-	next()
-})
+// userSchema.pre('remove', async function (next) {
+// 	const user = this
+// 	await Task.deleteMany({ owner: user._id })
+// 	next()
+// })
 
 export const User = mongoose.model<UserDocuments>('User', userSchema)

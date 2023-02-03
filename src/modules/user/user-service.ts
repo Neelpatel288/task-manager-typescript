@@ -25,7 +25,11 @@ export const patchUser = async (user: UserDocuments, body: any) => {
 
 	const data = User.findByIdAndUpdate(user._id, body)
 	console.log('🚀 ~ file: user-service.ts:18 ~ patchUser ~ data', data)
-	// updates.forEach((update) => (user[update] = body[update]))
 
 	return await user.save()
+}
+
+export const deleteUser = async (id: string) => {
+	const user = User.deleteOne({ id })
+	return user
 }
