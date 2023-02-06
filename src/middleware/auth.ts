@@ -9,6 +9,20 @@ interface JwtPayload {
 }
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
+	// const token: string | undefined = req.header('Authorization')?.replace('Bearer ', '')
+	// console.log('🚀 ~ file: auth.ts:13 ~ auth ~ token', token)
+
+	// if (!token) {
+	// 	throw new Error(errorMessages.pleaseAuth)
+	// }
+
+	// const decoded = jwt.verify(token, 'thisismynewcourse') as JwtPayload
+	// console.log("🚀 ~ file: auth.ts:22 ~ auth ~ decoded", decoded)
+	// const user = await User.findOne({
+	// 	_id: decoded._id,
+	// 	'tokens.token': token,
+	// })
+
 	try {
 		const token: string | undefined = req
 			.header('Authorization')

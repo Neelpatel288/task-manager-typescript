@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 
-mongoose.connect(process.env.DB_URL)
+const dbUrl: any = process.env.DB_URL
+
+mongoose.connect(dbUrl)
 
 // const me = new User({
 //     name: '  Neel   ',

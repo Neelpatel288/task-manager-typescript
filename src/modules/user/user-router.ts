@@ -6,6 +6,14 @@ import { errorMessages } from '../../errorMessages'
 import { deleteManyTask } from '../task/task-service'
 // import { IGetUserAuthInfoRequest } from '../../models/user'
 
+/* Create user - 1 Cred,
+	{
+    "name": "neel",
+    "email" : "neelg@123.com"
+    "password":"Neel@123"
+	}
+*/
+
 export const userRouter: express.Router = express.Router()
 userRouter.post('/', async (req: Request, res: Response) => {
 	try {
@@ -71,6 +79,7 @@ userRouter.patch('/me', auth, async (req: Request, res: Response) => {
 		}
 
 		const user = await patchUser(req.body.user, req.body)
+
 		res.send({ data: user })
 	} catch (e: any) {
 		console.log(e.message)

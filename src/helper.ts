@@ -1,4 +1,7 @@
-export const validateoperation = (body: any, allowedUpdates: string[]) => {
+export const validateoperation = (
+	{ token, user, ...body }: any,
+	allowedUpdates: string[]
+) => {
 	const updates = Object.keys(body)
 	const isValidOperation = updates.every((update) =>
 		allowedUpdates.includes(update)

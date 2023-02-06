@@ -20,11 +20,9 @@ export const userLogin = async (email: string, password: string) => {
 	return user
 }
 
-export const patchUser = async (user: UserDocuments, body: any) => {
+export const patchUser = async (user: any, body: any) => {
 	const updates = Object.keys(body)
-
-	const data = User.findByIdAndUpdate(user._id, body)
-	console.log('🚀 ~ file: user-service.ts:18 ~ patchUser ~ data', data)
+	updates.forEach((update) => (user[update] = body[update]))
 
 	return await user.save()
 }
