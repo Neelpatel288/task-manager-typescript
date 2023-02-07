@@ -4,9 +4,14 @@ import {
 	readTask,
 	updateTask,
 	deleteTask,
-	findAndDeleteManyTask,
+	deleteManyTask,
 } from './task-service'
-import { checkValidIdLength, validateoperation } from '../../helper'
+import {
+	checkValidIdLength,
+	validateoperation,
+	successResponse,
+	errorResponse,
+} from './../../helper'
 import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
 export const taskRouter: express.Router = express.Router()
@@ -14,14 +19,14 @@ export const taskRouter: express.Router = express.Router()
 taskRouter.post('/', auth, async (req: Request, res: Response) => {
 	try {
 		const task = await createTask(req.body, req.body.user._id)
-		res.status(201).send({ data: task })
+		successResponse(res, { data: task }, 201)
 	} catch (e) {
 		console.log(e)
-		res.status(400).send(e)
+		errorResponse(res, e)
 	}
 })
 
-taskRouter.get('/all', auth, async (req: Request, res: Response) => {
+taskRouter.get('/', auth, async (req: Request, res: Response) => {
 	const match: { completed?: boolean } = {}
 	const sort: any = {}
 
@@ -47,10 +52,10 @@ taskRouter.get('/all', auth, async (req: Request, res: Response) => {
 				sort,
 			},
 		})
-		res.send({ data: user.tasks })
+		successResponse(res, { data: user.tasks })
 	} catch (e) {
 		console.log(e)
-		res.status(500).send(e)
+		errorResponse(res, e, 500)
 	}
 })
 
@@ -66,11 +71,11 @@ taskRouter.get('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		res.send({ data: task })
+		successResponse(res, { data: task })
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
-		res.status(400).send({ message, status: 400 })
+		errorResponse(res, { message })
 	}
 })
 
@@ -90,12 +95,11 @@ taskRouter.patch('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-
-		res.send({ data: task })
+		successResponse(res, { data: task })
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
-		res.status(400).send({ message, status: 400 })
+		errorResponse(res, { message })
 	}
 })
 
@@ -112,27 +116,27 @@ taskRouter.delete('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		res.send({ data: task })
+		successResponse(res, { data: task })
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
-		res.status(500).send({ message, status: 500 })
+		errorResponse(res, { message }, 500)
 	}
 })
 
 taskRouter.delete('/', auth, async (req: Request, res: Response) => {
 	const taskIds = req.body.taskIds
-	const ownerId = req.body.owner
+	const ownerId = req.body.owner || req.body.user._id
 
 	try {
-		const task = await findAndDeleteManyTask(taskIds, ownerId)
+		const task = await deleteManyTask(taskIds, ownerId)
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		res.send({ data: task })
+		successResponse(res, { data: task })
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
-		res.status(500).send({ message, status: 500 })
+		errorResponse(res, { message }, 500)
 	}
 })

@@ -1,9 +1,13 @@
 import express, { Request, Response } from 'express'
 import { createUser, updateUser, userLogin, deleteUser } from './user-service'
-import { validateoperation } from '../../helper'
+import { deleteManyTask } from '../task/task-service'
+import {
+	validateoperation,
+	successResponse,
+	errorResponse,
+} from './../../helper'
 import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
-import { deleteManyTask } from '../task/task-service'
 
 export const userRouter: express.Router = express.Router()
 userRouter.post('/', async (req: Request, res: Response) => {
@@ -11,23 +15,22 @@ userRouter.post('/', async (req: Request, res: Response) => {
 		const user = await createUser(req.body)
 		const token = await user.generateAuthToken()
 
-		res.status(201).send({ data: { user, token } })
+		successResponse(res, { data: { user, token } }, 201)
 	} catch (e) {
 		console.log(e)
-		res.status(400).send(e)
+		errorResponse(res, e)
 	}
 })
-
 userRouter.post('/login', async (req: Request, res: Response) => {
 	try {
 		const { email, password } = req.body
 
 		const user = await userLogin(email, password)
 		const token = await user.generateAuthToken()
-		res.send({ data: { user, token } })
+		successResponse(res, { data: { user, token } })
 	} catch (e) {
 		console.log(e)
-		res.status(400).send()
+		errorResponse(res)
 	}
 })
 
@@ -37,11 +40,12 @@ userRouter.post('/logout', auth, async (req: Request, res: Response) => {
 		user.tokens = user.tokens.filter((userToken: string) => {
 			return userToken !== token
 		})
+
 		await user.save()
-		res.send()
+		successResponse(res)
 	} catch (e) {
 		console.log(e)
-		res.status(500).send()
+		errorResponse(res, e, 500)
 	}
 })
 
@@ -50,18 +54,18 @@ userRouter.post('/logoutAll', auth, async (req: Request, res: Response) => {
 		const { user } = req.body
 		user.tokens = []
 		await user.save()
-		res.send()
+		successResponse(res)
 	} catch (e) {
 		console.log(e)
-		res.status(500).send()
+		errorResponse(res, e, 500)
 	}
 })
 
-userRouter.get('/owner', auth, async (req: Request, res: Response) => {
-	res.send({ data: req.body.user })
+userRouter.get('/', auth, async (req: Request, res: Response) => {
+	successResponse(res, { data: req.body.user })
 })
 
-userRouter.patch('/owner', auth, async (req: Request, res: Response) => {
+userRouter.patch('/', auth, async (req: Request, res: Response) => {
 	try {
 		if (
 			!validateoperation(req.body, ['name', 'email', 'password', 'age'])
@@ -70,24 +74,23 @@ userRouter.patch('/owner', auth, async (req: Request, res: Response) => {
 		}
 
 		const user = await updateUser(req.body.user, req.body)
-
-		res.send({ data: user })
+		successResponse(res, { data: user })
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
-		res.status(400).send({ message, status: 400 })
+		errorResponse(res, { message })
 	}
 })
 
-userRouter.delete('/owner', auth, async (req: Request, res: Response) => {
+userRouter.delete('/', auth, async (req: Request, res: Response) => {
 	try {
 		const { user } = req.body
 		const userId = user._id
 		await deleteUser(userId)
-		await deleteManyTask(userId)
-		res.send({ data: user })
+		await deleteManyTask([], userId)
+		successResponse(res, { data: user })
 	} catch (e) {
 		console.log(e)
-		res.status(500).send()
+		errorResponse(res, e, 500)
 	}
 })

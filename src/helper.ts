@@ -1,3 +1,5 @@
+import { Response } from 'express'
+
 export const validateoperation = (
 	{ token, user, ...body }: any,
 	allowedUpdates: string[]
@@ -12,4 +14,12 @@ export const validateoperation = (
 
 export const checkValidIdLength = (id: string): boolean => {
 	return id.length === 24
+}
+
+export const successResponse = (res: Response, value?: any, status = 200) => {
+	res.status(status).send(value)
+}
+
+export const errorResponse = (res: Response, value?: any, status = 400) => {
+	res.status(status).send(value)
 }
