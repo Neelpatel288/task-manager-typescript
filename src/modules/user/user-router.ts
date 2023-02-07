@@ -1,23 +1,14 @@
 import express, { Request, Response } from 'express'
-import { postUser, patchUser, userLogin, deleteUser } from './user-service'
+import { createUser, updateUser, userLogin, deleteUser } from './user-service'
 import { validateoperation } from '../../helper'
 import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
 import { deleteManyTask } from '../task/task-service'
-// import { IGetUserAuthInfoRequest } from '../../models/user'
-
-/* Create user - 1 Cred,
-	{
-    "name": "neel",
-    "email" : "neelg@123.com"
-    "password":"Neel@123"
-	}
-*/
 
 export const userRouter: express.Router = express.Router()
 userRouter.post('/', async (req: Request, res: Response) => {
 	try {
-		const user = await postUser(req.body)
+		const user = await createUser(req.body)
 		const token = await user.generateAuthToken()
 
 		res.status(201).send({ data: { user, token } })
@@ -44,7 +35,7 @@ userRouter.post('/logout', auth, async (req: Request, res: Response) => {
 	try {
 		const { user, token } = req.body
 		user.tokens = user.tokens.filter((userToken: string) => {
-			return userToken != token
+			return userToken !== token
 		})
 		await user.save()
 		res.send()
@@ -66,11 +57,11 @@ userRouter.post('/logoutAll', auth, async (req: Request, res: Response) => {
 	}
 })
 
-userRouter.get('/me', auth, async (req: Request, res: Response) => {
+userRouter.get('/owner', auth, async (req: Request, res: Response) => {
 	res.send({ data: req.body.user })
 })
 
-userRouter.patch('/me', auth, async (req: Request, res: Response) => {
+userRouter.patch('/owner', auth, async (req: Request, res: Response) => {
 	try {
 		if (
 			!validateoperation(req.body, ['name', 'email', 'password', 'age'])
@@ -78,7 +69,7 @@ userRouter.patch('/me', auth, async (req: Request, res: Response) => {
 			throw new Error(errorMessages.inValidUpdates)
 		}
 
-		const user = await patchUser(req.body.user, req.body)
+		const user = await updateUser(req.body.user, req.body)
 
 		res.send({ data: user })
 	} catch (e: any) {
@@ -88,7 +79,7 @@ userRouter.patch('/me', auth, async (req: Request, res: Response) => {
 	}
 })
 
-userRouter.delete('/me', auth, async (req: Request, res: Response) => {
+userRouter.delete('/owner', auth, async (req: Request, res: Response) => {
 	try {
 		const { user } = req.body
 		const userId = user._id

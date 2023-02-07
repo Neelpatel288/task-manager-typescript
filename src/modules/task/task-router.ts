@@ -1,5 +1,11 @@
 import express, { Request, Response } from 'express'
-import { postTask, getTask, patchTask, deleteTask } from './task-service'
+import {
+	createTask,
+	readTask,
+	updateTask,
+	deleteTask,
+	findAndDeleteManyTask,
+} from './task-service'
 import { checkValidIdLength, validateoperation } from '../../helper'
 import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
@@ -7,7 +13,7 @@ export const taskRouter: express.Router = express.Router()
 
 taskRouter.post('/', auth, async (req: Request, res: Response) => {
 	try {
-		const task = await postTask(req.body, req.body.user._id)
+		const task = await createTask(req.body, req.body.user._id)
 		res.status(201).send({ data: task })
 	} catch (e) {
 		console.log(e)
@@ -56,9 +62,9 @@ taskRouter.get('/:id', auth, async (req: Request, res: Response) => {
 			throw new Error(errorMessages.provideValidId)
 		}
 
-		const task = await getTask(taskId, ownerId)
+		const task = await readTask(taskId, ownerId)
 		if (!task) {
-			throw new Error(errorMessages.notFound)
+			throw new Error(errorMessages.taskNotFound)
 		}
 		res.send({ data: task })
 	} catch (e: any) {
@@ -80,9 +86,9 @@ taskRouter.patch('/:id', auth, async (req: Request, res: Response) => {
 			throw new Error(errorMessages.inValidUpdates)
 		}
 
-		const task = await patchTask(taskId, ownerId, req.body)
+		const task = await updateTask(taskId, ownerId, req.body)
 		if (!task) {
-			throw new Error(errorMessages.notFound)
+			throw new Error(errorMessages.taskNotFound)
 		}
 
 		res.send({ data: task })
@@ -104,7 +110,24 @@ taskRouter.delete('/:id', auth, async (req: Request, res: Response) => {
 
 		const task = await deleteTask(taskId, ownerId)
 		if (!task) {
-			throw new Error(errorMessages.notFound)
+			throw new Error(errorMessages.taskNotFound)
+		}
+		res.send({ data: task })
+	} catch (e: any) {
+		console.log(e.message)
+		const { message } = e
+		res.status(500).send({ message, status: 500 })
+	}
+})
+
+taskRouter.delete('/', auth, async (req: Request, res: Response) => {
+	const taskIds = req.body.taskIds
+	const ownerId = req.body.owner
+
+	try {
+		const task = await findAndDeleteManyTask(taskIds, ownerId)
+		if (!task) {
+			throw new Error(errorMessages.taskNotFound)
 		}
 		res.send({ data: task })
 	} catch (e: any) {

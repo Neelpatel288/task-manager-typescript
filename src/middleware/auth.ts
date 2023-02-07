@@ -5,24 +5,9 @@ import { User } from '../models/user'
 
 interface JwtPayload {
 	_id: string
-	// other properties...
 }
 
 export const auth = async (req: Request, res: Response, next: NextFunction) => {
-	// const token: string | undefined = req.header('Authorization')?.replace('Bearer ', '')
-	// console.log('🚀 ~ file: auth.ts:13 ~ auth ~ token', token)
-
-	// if (!token) {
-	// 	throw new Error(errorMessages.pleaseAuth)
-	// }
-
-	// const decoded = jwt.verify(token, 'thisismynewcourse') as JwtPayload
-	// console.log("🚀 ~ file: auth.ts:22 ~ auth ~ decoded", decoded)
-	// const user = await User.findOne({
-	// 	_id: decoded._id,
-	// 	'tokens.token': token,
-	// })
-
 	try {
 		const token: string | undefined = req
 			.header('Authorization')
@@ -32,7 +17,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
 			throw new Error(errorMessages.pleaseAuth)
 		}
 
-		const decoded = jwt.verify(token, 'thisismynewcourse') as JwtPayload
+		const secretKey: any = process.env.SECRET_KEY
+
+		const decoded = jwt.verify(token, secretKey) as JwtPayload
 		const user = await User.findOne({
 			_id: decoded._id,
 			'tokens.token': token,

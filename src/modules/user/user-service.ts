@@ -1,7 +1,7 @@
 import { User, UserDocuments } from './../../models/user'
 import bcrypt from 'bcryptjs'
 
-export const postUser = async (body: any) => {
+export const createUser = async (body: any) => {
 	const user = await User.create(body)
 	return user
 }
@@ -20,7 +20,7 @@ export const userLogin = async (email: string, password: string) => {
 	return user
 }
 
-export const patchUser = async (user: any, body: any) => {
+export const updateUser = async (user: any, body: any) => {
 	const updates = Object.keys(body)
 	updates.forEach((update) => (user[update] = body[update]))
 
