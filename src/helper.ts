@@ -17,7 +17,10 @@ export const checkValidIdLength = (id: string): boolean => {
 }
 
 export const successResponse = (res: Response, value?: any, status = 200) => {
-	res.status(status).send(value)
+	if (value) {
+		res.status(status).send({ data: value })
+	}
+	res.status(status).send()
 }
 
 export const errorResponse = (res: Response, value?: any, status = 400) => {

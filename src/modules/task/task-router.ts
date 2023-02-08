@@ -19,7 +19,7 @@ export const taskRouter: express.Router = express.Router()
 taskRouter.post('/', auth, async (req: Request, res: Response) => {
 	try {
 		const task = await createTask(req.body, req.body.user._id)
-		successResponse(res, { data: task }, 201)
+		successResponse(res, task, 201)
 	} catch (e) {
 		console.log(e)
 		errorResponse(res, e)
@@ -52,7 +52,7 @@ taskRouter.get('/', auth, async (req: Request, res: Response) => {
 				sort,
 			},
 		})
-		successResponse(res, { data: user.tasks })
+		successResponse(res, user.tasks)
 	} catch (e) {
 		console.log(e)
 		errorResponse(res, e, 500)
@@ -71,7 +71,7 @@ taskRouter.get('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		successResponse(res, { data: task })
+		successResponse(res, task)
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
@@ -95,7 +95,7 @@ taskRouter.patch('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		successResponse(res, { data: task })
+		successResponse(res, task)
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
@@ -116,7 +116,7 @@ taskRouter.delete('/:id', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		successResponse(res, { data: task })
+		successResponse(res, task)
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
@@ -133,7 +133,7 @@ taskRouter.delete('/', auth, async (req: Request, res: Response) => {
 		if (!task) {
 			throw new Error(errorMessages.taskNotFound)
 		}
-		successResponse(res, { data: task })
+		successResponse(res, task)
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e

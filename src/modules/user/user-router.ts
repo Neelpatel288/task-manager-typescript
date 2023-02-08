@@ -1,3 +1,4 @@
+import { auth, generateAuthToken } from './../../middleware/auth'
 import express, { Request, Response } from 'express'
 import { createUser, updateUser, userLogin, deleteUser } from './user-service'
 import { deleteManyTask } from '../task/task-service'
@@ -6,16 +7,13 @@ import {
 	successResponse,
 	errorResponse,
 } from './../../helper'
-import { auth } from '../../middleware/auth'
 import { errorMessages } from '../../errorMessages'
-
 export const userRouter: express.Router = express.Router()
 userRouter.post('/', async (req: Request, res: Response) => {
 	try {
 		const user = await createUser(req.body)
-		const token = await user.generateAuthToken()
-
-		successResponse(res, { data: { user, token } }, 201)
+		const token = await generateAuthToken(user)
+		successResponse(res, { user, token }, 201)
 	} catch (e) {
 		console.log(e)
 		errorResponse(res, e)
@@ -26,8 +24,8 @@ userRouter.post('/login', async (req: Request, res: Response) => {
 		const { email, password } = req.body
 
 		const user = await userLogin(email, password)
-		const token = await user.generateAuthToken()
-		successResponse(res, { data: { user, token } })
+		const token = await generateAuthToken(user)
+		successResponse(res, { user, token })
 	} catch (e) {
 		console.log(e)
 		errorResponse(res)
@@ -74,7 +72,7 @@ userRouter.patch('/', auth, async (req: Request, res: Response) => {
 		}
 
 		const user = await updateUser(req.body.user, req.body)
-		successResponse(res, { data: user })
+		successResponse(res, user)
 	} catch (e: any) {
 		console.log(e.message)
 		const { message } = e
@@ -88,7 +86,7 @@ userRouter.delete('/', auth, async (req: Request, res: Response) => {
 		const userId = user._id
 		await deleteUser(userId)
 		await deleteManyTask([], userId)
-		successResponse(res, { data: user })
+		successResponse(res, user)
 	} catch (e) {
 		console.log(e)
 		errorResponse(res, e, 500)
