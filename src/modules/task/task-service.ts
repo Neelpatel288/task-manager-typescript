@@ -37,14 +37,6 @@ export const deleteManyTask = async (taskIds: string[], owner: string) => {
 	} else {
 		arg = { owner }
 	}
-
-	// if (taskIds === undefined) {
-	// 	const task = await Task.deleteMany({ owner })
-	// 	return task
-	// } else {
-	// 	const task = await Task.deleteMany({ _id: { $in: taskIds }, owner })
-	// 	return task
-	// }
 	const task = await Task.deleteMany(arg)
 
 	return task
