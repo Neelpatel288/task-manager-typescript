@@ -1,8 +1,6 @@
 import mongoose from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { Task } from './task'
 
 export interface UserInput {
 	name: string
@@ -15,8 +13,6 @@ export interface UserInput {
 export interface UserDocuments extends UserInput, mongoose.Document {
 	createdAt: Date
 	updatedAt: Date
-	generateAuthToken(): Promise<string>
-	findByCredentials(email: string, password: string): Promise<string>
 }
 
 const userSchema = new mongoose.Schema(
@@ -78,15 +74,6 @@ userSchema.virtual('tasks', {
 	foreignField: 'owner',
 })
 
-userSchema.methods.generateAuthToken = async function (): Promise<string> {
-	const user = this
-	const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
-
-	user.tokens = user.tokens.concat({ token })
-	await user.save()
-	return token
-}
-
 userSchema.methods.toJSON = function () {
 	const user = this
 	const userObject = user.toObject()
@@ -106,12 +93,5 @@ userSchema.pre('save', async function (next) {
 
 	next()
 })
-
-//Delete user task when user id Deleted
-// userSchema.pre('remove', async function (next) {
-// 	const user = this
-// 	await Task.deleteMany({ owner: user._id })
-// 	next()
-// })
 
 export const User = mongoose.model<UserDocuments>('User', userSchema)

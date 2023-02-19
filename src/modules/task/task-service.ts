@@ -29,16 +29,15 @@ export const deleteTask = (_id: string, owner: string) => {
 	return task
 }
 
-export const deleteManyTask = (owner: string) => {
-	const task = Task.deleteMany({ owner })
+export const deleteManyTask = async (taskIds: string[], owner: string) => {
+	let arg = {}
+
+	if (taskIds && taskIds.length) {
+		arg = { _id: { $in: taskIds }, owner }
+	} else {
+		arg = { owner }
+	}
+	const task = await Task.deleteMany(arg)
+
 	return task
-}
-
-export const findAndDeleteManyTask = async (taskIds: any, owner: string) => {
-	const task1 = await Task.find({ _id: { $in: taskIds }, owner })
-	const tasks = await Task.deleteMany({
-		_id: { $in: task1.map((task) => task._id) },
-	})
-
-	return tasks
 }

@@ -1,4 +1,4 @@
-import { User, UserDocuments } from './../../models/user'
+import { User } from './../../models/user'
 import bcrypt from 'bcryptjs'
 
 export const createUser = async (body: any) => {
